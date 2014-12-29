@@ -88,6 +88,68 @@ if __name__ == "__main__":
         Log1.write(Message[1])
         Log1.write("\r\n")
 
+    elif metodo == "INVITE":
+
+        Usuario = etiquetas[0] 
+        Usuario = Usuario["username"] # Usuario origen
+        Direccion = etiquetas[1]
+        Ip = Direccion["ip"] # IP del server.
+        PuertoRTP = etiquetas[2] # Puerto donde tendremos el RTP
+        PuertoRTP = PuertoRTP["puerto"]
+        Receiver = sys.argv[3] # Dado el invite, este input seria el destino.
+        LINE = metodo + " sip:" + Receiver + " SIP/2.0\r\n" + \
+        "Content-Type: application/sdp\r\n\r\nv=0\r\no=" + Usuario + \
+        " " + Ip + "\r\ns=misesion\r\nt=0\r\nm=audio " + PuertoRTP + " RTP"
+        
+        Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S', time.gmtime(time.time()))
+        Log1.write(Tiempo_log[:4]) # Referenciamos el tiempo como antes.
+        Log1.write(Tiempo_log[6:8])
+        Log1.write(Tiempo_log[10:12])
+        Log1.write(Tiempo_log[13:15])
+        Log1.write(Tiempo_log[16:18])
+        Log1.write(Tiempo_log[19:21])
+        Log1.write(" Sent to ") # Al igual que en el metodo anterior.
+        Log1.write(SERVER)
+        Log1.write(":")
+        Log1.write(str(PORT))
+        Log1.write(": ")
+        Message = LINE.split("\r\n")
+        Log1.write(Message[0]) # Tenemos 7 saltos, por lo que hay 8 elementos
+        Log1.write(" ")
+        Log1.write(Message[1])
+        Log1.write(" ")
+        Log1.write(Message[2])
+        Log1.write(" ")
+        Log1.write(Message[3])
+        Log1.write(" ")
+        Log1.write(Message[4]) # Espacio en blanco.
+        Log1.write(" ")
+        Log1.write(Message[5])
+        Log1.write(" ")
+        Log1.write(Message[6])
+        Log1.write(" ")
+        Log1.write(Message[7])
+        Log1.write("\r\n")
+
+    elif metodo == "BYE":
+
+        Receiver = sys.argv[3]
+        LINE = metodo + " sip:" + Receiver + " SIP/2.0"
+        
+        Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S', time.gmtime(time.time()))
+        Log1.write(Tiempo_log[:4]) # Como antes definimos el tiempo
+        Log1.write(Tiempo_log[6:8])
+        Log1.write(Tiempo_log[10:12])
+        Log1.write(Tiempo_log[13:15])
+        Log1.write(Tiempo_log[16:18])
+        Log1.write(Tiempo_log[19:21])
+        Log1.write(" Sent to ") # Igual que antes
+        Log1.write(SERVER)
+        Log1.write(":")
+        Log1.write(str(PORT))
+        Log1.write(": ")
+        Log1.write(LINE) # SOlo tenemos una linea, no hace falta separar.
+        Log1.write("\r\n")
 
 
 
