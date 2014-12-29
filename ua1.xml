@@ -1,6 +1,6 @@
 <config>
-    <account username = "auronff10"/>
-    <uaserver puerto = "4050"/>
+    <account username = "auronff10@bigbang.com"/>
+    <uaserver ip = "127.0.0.1" puerto = "4050"/>
     <rtpaudio puerto = "4052"/>
     <regproxy ip = "127.0.0.1" puerto = "5000"/>
     <log path = "ua1_log.txt"/>
