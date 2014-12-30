@@ -46,7 +46,7 @@ if __name__ == "__main__":
     Log1 = etiquetas[4]
     Log1 = Log1["path"]
     Log1 = open(Log1, "a") # Abrimos el archivo del log
-    Log1.write("______________________________________________________" + "\r\n")
+    Log1.write("_____________________________________________________" + "\r\n")
     Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S', time.gmtime(time.time()))
     Log1.write(Tiempo_log[:4])  # Año
     Log1.write(Tiempo_log[6:8]) # Mes      
