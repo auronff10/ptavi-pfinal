@@ -14,7 +14,7 @@ class SessionHandler(ContentHandler):
     def __init__(self):  # Iniciamos
         self.lista = []
 
-    def startElement(self, name, attrs):  # Tomamos los tags como en el SmallSmil
+    def startElement(self, name, attrs):  # Tomamos los tags como en P4
 
         if name == "account":
             self.account = {}
@@ -57,22 +57,22 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
     Echo server class
     """
 
-    def handle(self):  # Recibimos del cliente y dependiendo del metodo actuamos
+    def handle(self):  # Recibimos del cliente,dependiendo del metodo actuamos
         while 1:
             line = self.rfile.read()
             print line
             metodo = line.split(" ")[0]  # Metodo introducido.
 
-            if metodo == "INVITE":  # El Registrer lo consideraremos en el proxy
+            if metodo == "INVITE":  # El Registrer lo consideraremo en el proxy
                 Log1 = etiquetas[4]
                 Log1 = Log1["path"]
                 Log1 = open(Log1, "a")  # Abrimos el log con el nombre del xml.
                 Log1.write(
-                    "_____________________________________________________" + "\r\n")
+                    "__________________________________________" + "\r\n")
                            # Separacion en el log
 
                 Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                           time.gmtime(time.time()))  # Bloque de tiempo, como siempre.
+                                           time.gmtime(time.time()))
                 Log1.write(Tiempo_log[:4])
                 Log1.write(Tiempo_log[6:8])
                 Log1.write(Tiempo_log[10:12])
@@ -91,7 +91,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                 Log1.write(Puerto_Proxy)
                 Log1.write(": ")
                 Message = line.split("\r\n")
-                if len(Message) == 9:  # EL Description siempre tiene los mismos elementos
+                if len(Message) == 9:  # EL Description con mismos elementos
                     Log1.write(Message[0])
                     Log1.write(" ")
                     Log1.write(Message[1])
@@ -110,7 +110,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                     Log1.write("\r\n")
 
                     Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                               time.gmtime(time.time()))  # Bloque temporal as always.
+                                               time.gmtime(time.time()))
                     Log1.write(Tiempo_log[:4])
                     Log1.write(Tiempo_log[6:8])
                     Log1.write(Tiempo_log[10:12])
@@ -179,7 +179,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                     Cancion = Cancion["path"]  # Cancion.mp3
 
                     Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                               time.gmtime(time.time()))  # Bloque temporal as usual.
+                                               time.gmtime(time.time()))
                     Log1.write(Tiempo_log[:4])
                     Log1.write(Tiempo_log[6:8])
                     Log1.write(Tiempo_log[10:12])
@@ -198,8 +198,8 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                     Log1.write(line)
 
                     Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                               time.gmtime(time.time()))  # repetimos bloque temporal para RTP
-                    Log1.write(Tiempo_log[:4])
+                                               time.gmtime(time.time()))
+                    Log1.write(Tiempo_log[:4])  # repetimos bloque temporal RTP
                     Log1.write(Tiempo_log[6:8])
                     Log1.write(Tiempo_log[10:12])
                     Log1.write(Tiempo_log[13:15])
@@ -213,8 +213,8 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                     os.system(aEjecutar)
 
                     Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                               time.gmtime(time.time()))  # Bloque temporal para el fin RTP.
-                    Log1.write(Tiempo_log[:4])
+                                               time.gmtime(time.time()))
+                    Log1.write(Tiempo_log[:4])  # FInalizacion RTP.
                     Log1.write(Tiempo_log[6:8])
                     Log1.write(Tiempo_log[10:12])
                     Log1.write(Tiempo_log[13:15])
@@ -230,8 +230,8 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                 Log1 = open(Log1, "a")
 
                 Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                           time.gmtime(time.time()))  # Bloque temporal para recepcion dl Proxy
-                Log1.write(Tiempo_log[:4])
+                                           time.gmtime(time.time()))
+                Log1.write(Tiempo_log[:4])  # Bloque de recepcion dl Proxy
                 Log1.write(Tiempo_log[6:8])
                 Log1.write(Tiempo_log[10:12])
                 Log1.write(Tiempo_log[13:15])
@@ -250,8 +250,8 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                 self.wfile.write("SIP/2.0 200 OK\r\n")
 
                 Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                           time.gmtime(time.time()))  # Bloque temporal para indicar el envio.
-                Log1.write(Tiempo_log[:4])
+                                           time.gmtime(time.time()))
+                Log1.write(Tiempo_log[:4])  # Bloque para indicar el envio.
                 Log1.write(Tiempo_log[6:8])
                 Log1.write(Tiempo_log[10:12])
                 Log1.write(Tiempo_log[13:15])
@@ -268,8 +268,8 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                 Log1.write("SIP/2.0 200 OK\r\n")
 
                 Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                           time.gmtime(time.time()))  # Bloque temporal para la finalizacion
-                Log1.write(Tiempo_log[:4])
+                                           time.gmtime(time.time()))
+                Log1.write(Tiempo_log[:4])  # Bloque temporal para finalizacion
                 Log1.write(Tiempo_log[6:8])
                 Log1.write(Tiempo_log[10:12])
                 Log1.write(Tiempo_log[13:15])

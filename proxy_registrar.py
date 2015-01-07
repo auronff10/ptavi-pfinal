@@ -13,7 +13,7 @@ import uaserver
 import socket
 
 
-class SessionHandler(ContentHandler):  # Igual a la del uaserver, sacamos las tags
+class SessionHandler(ContentHandler):  # Sacamos las tags como en uaserver
 
     def __init__(self):
         self.lista = []
@@ -41,7 +41,7 @@ class SessionHandler(ContentHandler):  # Igual a la del uaserver, sacamos las ta
         return self.lista
 
 
-class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actua
+class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo...
 
     def handle(self):
         while 1:
@@ -50,7 +50,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
             Metodo = line.split(" ")[0]
             if Metodo == "REGISTER":  # EL registrer por separado del uaserver
                 Message = line.split("\r\n")
-                if len(Message) == 3:  # Nos aseguramos del formato del Register
+                if len(Message) == 3:  # Nos aseguramos del formato
                     Iter = 0
                     for User in UsuariosReg:  # Revisamos que no haya expirado
                         if float(UsuariosReg[Iter][3]) + \
@@ -70,24 +70,25 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                     Time_Expiracion = line.split(" ")[-1][:-2]
                     Info.append(Time_Expiracion)  # Tiempo de Expiracion
 
-                    if Time_Expiracion != "0":  # Si no ha expirado el tiempo de reg
+                    if Time_Expiracion != "0":  # Si no ha expirado...
                         UsuariosReg.append(Info)  # Info del usuario
                         Database = etiquetas[1]
                         Database = Database["path"]
                         Database = open(
-                            Database, "w")  # Escribimos cabecera de cada usuario
+                            Database, "w")  # Escribimos cabecera database
                         Database.write("Usuario\tIP\tPuerto\t" +
-                                       "Fecha de Registro\tTiempo de expiracion\r\n")  # \t paralelo
+                                       "Fecha de Registro\t" +
+                                       "Tiempo de expiracion\r\n")
                         for User in UsuariosReg:
-                            for Elemento1 in User:  # Ponemos los datos de cada user
+                            for Elemento1 in User:  # Datos de cada user
                                 Database.write(str(Elemento1) + "\t")
                             Database.write("\r\n")
                         Database.close()  # Cerramos el log
-                        Found = True  # Booleano para indicar que esta el usuario buscado
+                        Found = True  # Booleano para diferenciar casos
                     else:  # Tiempo de registro de usuario expirado
                         Iter = 0
                         Found = False
-                        for User in UsuariosReg:  # Eliminamos los datos de los exp
+                        for User in UsuariosReg:  # Eliminamos datos del user
                             if User[0] == Usuario:
                                 del UsuariosReg[Iter]
                                 Found = True
@@ -96,7 +97,8 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                         Database = Database["path"]
                         Database = open(Database, "w")  # Igual que antes
                         Database.write("Usuario\tIP\tPuerto\t" +
-                                       "Fecha de Registro\tTiempo de expiracion\r\n")
+                                       "Fecha de Registro\t" +
+                                       "Tiempo de expiracion\r\n")
                         for User in UsuariosReg:
                             for Elemento1 in User:
                                 Database.write(str(Elemento1) + "\t")
@@ -109,7 +111,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                     Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
                                                time.gmtime(time.time()))
                     Log1.write(
-                        Tiempo_log[:4])  # Bloque temporal para indicar el recibimiento del Reg
+                        Tiempo_log[:4])  # Bloque para recibimiento del log
                     Log1.write(Tiempo_log[6:8])
                     Log1.write(Tiempo_log[10:12])
                     Log1.write(Tiempo_log[13:15])
@@ -127,7 +129,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                     Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
                                                time.gmtime(time.time()))
                     Log1.write(
-                        Tiempo_log[:4])  # Bloque temporal para indicar la respuesta
+                        Tiempo_log[:4])  # Bloque para indicar la respuesta
                     Log1.write(Tiempo_log[6:8])
                     Log1.write(Tiempo_log[10:12])
                     Log1.write(Tiempo_log[13:15])
@@ -150,7 +152,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
             elif Metodo == "INVITE":
                 Message = line.split(
                     "\r\n")  # Separamos los elementos del invite
-                if len(Message) == 9:  # Deberiamos tener 9 elementos si bien formado
+                if len(Message) == 9:  # Deberiamos tener 9 elementos.
                     Iter = 0
                     for User in UsuariosReg:  # Se revisa la expiracion primero
                         if float(UsuariosReg[Iter][3]) + \
@@ -173,7 +175,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                         Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
                                                    time.gmtime(time.time()))
                         Log1.write(
-                            Tiempo_log[:4])  # BLoque temporal para el recibimiento
+                            Tiempo_log[:4])  # BLoque para el recibimiento
                         Log1.write(Tiempo_log[6:8])
                         Log1.write(Tiempo_log[10:12])
                         Log1.write(Tiempo_log[13:15])
@@ -201,17 +203,20 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                         Log1.write(Message[7])
                         Log1.write("\r\n")
                         Iter = 0
-                        Objetivo = False  # Booleano para diferenciar destinatario
+                        Objetivo = False  # Booleano para destinatario
                         for User in UsuariosReg:
-                            if UsuariosReg[Iter][0] == Aim:  # SI coincide sacamos puerto.
+                            if UsuariosReg[Iter][0] == Aim:  # Puerto si igual
                                 Objetivo = True
                                 SERVER = UsuariosReg[Iter][1]
                                 PORT = int(UsuariosReg[Iter][2])
                                 try:
-                                    my_socket = socket.socket(socket.AF_INET,
-                                                              socket.SOCK_DGRAM)  # Igual a P6
-                                    my_socket.setsockopt(socket.SOL_SOCKET,
-                                                         socket.SO_REUSEADDR, 1)
+                                    my_socket = socket.socket(
+                                        socket.AF_INET,
+                                        socket.SOCK_DGRAM)
+                                    my_socket.setsockopt(
+                                        socket.SOL_SOCKET,
+                                        socket.SO_REUSEADDR,
+                                        1)
                                     my_socket.connect((SERVER, PORT))
                                     my_socket.send(line)
                                     data = my_socket.recv(1024)
@@ -220,12 +225,12 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
 
                                     my_socket.close(
                                     )  # Necesario cesar para evitar errores.
-                                except:  # Si no funciona es que no hay servidor escuchando.
+                                except:  # Si no hay servidor escuchando.
                                     Tiempo_log = time.strftime(
                                         '%Y­%m­%d %H:%M:%S',
                                         time.gmtime(time.time()))
                                     Log1.write(
-                                        Tiempo_log[:4])  # Para indicar el error
+                                        Tiempo_log[:4])  # Para el error
                                     Log1.write(Tiempo_log[6:8])
                                     Log1.write(Tiempo_log[10:12])
                                     Log1.write(Tiempo_log[13:15])
@@ -233,12 +238,13 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                                     Log1.write(Tiempo_log[19:21])
                                     Log1.write(" Error: no server ")
                                     Log1.write("listening at "
-                                               + SERVER + " port " + str(PORT) + "\r\n")
+                                               + SERVER + " port " +
+                                               str(PORT) + "\r\n")
                                     Tiempo_log = time.strftime(
                                         '%Y­%m­%d %H:%M:%S',
                                         time.gmtime(time.time()))
                                     Log1.write(
-                                        Tiempo_log[:4])  # Para indicar el cierre.
+                                        Tiempo_log[:4])  # Para el cierre.
                                     Log1.write(Tiempo_log[6:8])
                                     Log1.write(Tiempo_log[10:12])
                                     Log1.write(Tiempo_log[13:15])
@@ -248,13 +254,13 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                                     sys.exit("Error: no server listening at "
                                              + SERVER + " port " + str(PORT))
                                 self.wfile.write(
-                                    data)  # Si si tenemos servidor escuchando seguimos
+                                    data)  # Si tenemos server listeng seguimos
 
                                 Tiempo_log = time.strftime(
                                     '%Y­%m­%d %H:%M:%S',
                                     time.gmtime(time.time()))
                                 Log1.write(
-                                    Tiempo_log[:4])  # Igual al cliente, ponemos los elementos de la SDP
+                                    Tiempo_log[:4])  # Los elementos de la SDP
                                 Log1.write(Tiempo_log[6:8])
                                 Log1.write(Tiempo_log[10:12])
                                 Log1.write(Tiempo_log[13:15])
@@ -286,7 +292,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                                     '%Y­%m­%d %H:%M:%S',
                                     time.gmtime(time.time()))
                                 Log1.write(
-                                    Tiempo_log[:4])  # Exactamente igual para recibimiento.
+                                    Tiempo_log[:4])  # Para recibimiento
                                 Log1.write(Tiempo_log[6:8])
                                 Log1.write(Tiempo_log[10:12])
                                 Log1.write(Tiempo_log[13:15])
@@ -320,8 +326,9 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                                 Log1.write("\r\n")
                             Iter = Iter + 1
                         if Objetivo:  # La otra SDP al destinatario
-                            Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                                       time.gmtime(time.time()))
+                            Tiempo_log = time.strftime(
+                                '%Y­%m­%d %H:%M:%S',
+                                time.gmtime(time.time()))
                             Log1.write(Tiempo_log[:4])
                             Log1.write(Tiempo_log[6:8])
                             Log1.write(Tiempo_log[10:12])
@@ -356,8 +363,9 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                             Log1.write("\r\n")
                             Log1.close()
                         else:  # Si no esta en la databse el destinatario
-                            Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                                       time.gmtime(time.time()))
+                            Tiempo_log = time.strftime(
+                                '%Y­%m­%d %H:%M:%S',
+                                time.gmtime(time.time()))
                             Log1.write(Tiempo_log[:4])
                             Log1.write(Tiempo_log[6:8])
                             Log1.write(Tiempo_log[10:12])
@@ -422,7 +430,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                         PORT = int(UsuariosReg[Iter][2])
 
                         my_socket = socket.socket(socket.AF_INET,
-                                                  socket.SOCK_DGRAM)  # Enviamos el ACK
+                                                  socket.SOCK_DGRAM)  # ACK
                         my_socket.setsockopt(socket.SOL_SOCKET,
                                              socket.SO_REUSEADDR, 1)
                         my_socket.connect((SERVER, PORT))
@@ -501,8 +509,9 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                             my_socket.close()
                             self.wfile.write(data)
 
-                            Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                                       time.gmtime(time.time()))
+                            Tiempo_log = time.strftime(
+                                '%Y­%m­%d %H:%M:%S',
+                                time.gmtime(time.time()))
                             Log1.write(
                                 Tiempo_log[:4])  # EL que se envia al servidor
                             Log1.write(Tiempo_log[6:8])
@@ -516,8 +525,9 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                             Log1.write(str(PORT))
                             Log1.write(": ")
                             Log1.write(line)
-                            Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                                       time.gmtime(time.time()))
+                            Tiempo_log = time.strftime(
+                                '%Y­%m­%d %H:%M:%S',
+                                time.gmtime(time.time()))
                             Log1.write(Tiempo_log[:4])
                             Log1.write(
                                 Tiempo_log[6:8])  # Una vez recibe del servidor
@@ -531,8 +541,9 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actu
                             Log1.write(str(PORT))
                             Log1.write(": ")
                             Log1.write(data)
-                            Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
-                                                       time.gmtime(time.time()))
+                            Tiempo_log = time.strftime(
+                                '%Y­%m­%d %H:%M:%S',
+                                time.gmtime(time.time()))
                             Log1.write(Tiempo_log[:4])
                             Log1.write(Tiempo_log[6:8])  # Envio del cliente
                             Log1.write(Tiempo_log[10:12])

@@ -25,7 +25,8 @@ if __name__ == "__main__":
         print "Usage: python uaclient.py config method option"
         sys.exit()
 
-    if sys.argv[2] != "REGISTER" and sys.argv[2] != "INVITE" and sys.argv[2] != "BYE":
+    if sys.argv[2] != "REGISTER" and sys.argv[2] != "INVITE" and \
+            sys.argv[2] != "BYE":
         sys.exit("Usage: python uaclient.py config method option")
 
     parser = make_parser()  # Sacamos los tags del xml como en la P3
