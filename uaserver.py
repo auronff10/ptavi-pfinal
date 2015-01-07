@@ -73,7 +73,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                 Log1 = open(Log1, "a")  # Abrimos el log con el nombre del xml.
                 Log1.write(
                     "_____________________________________________________" + "\r\n")
-                           #Separacion en el log
+                           # Separacion en el log
 
                 Tiempo_log = time.strftime('%Y­%m­%d %H:%M:%S',
                                            time.gmtime(time.time()))  # Bloque de tiempo, como siempre.
@@ -308,4 +308,3 @@ if __name__ == "__main__":
     serv = SocketServer.UDPServer((Ip, int(Puerto)), EchoHandler)
     print "Listening..."
     serv.serve_forever()
-

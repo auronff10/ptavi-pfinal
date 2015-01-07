@@ -40,6 +40,7 @@ class SessionHandler(ContentHandler):  # Igual a la del uaserver, sacamos las ta
     def get_tags(self):
         return self.lista
 
+
 class EchoHandler(SocketServer.DatagramRequestHandler):  # Segun el metodo, actua
 
     def handle(self):

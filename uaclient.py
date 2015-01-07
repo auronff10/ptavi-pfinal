@@ -86,7 +86,7 @@ if __name__ == "__main__":
         Log1.write(": ")
         Message = LINE.split("\r\n")  # Info del usuario, metodo enviado arriba
         Log1.write(Message[0])
-                   #Para poner ambas cosas en la misma linea del log
+                   # Para poner ambas cosas en la misma linea del log
         Log1.write(" ")
         Log1.write(Message[1])
         Log1.write("\r\n")
