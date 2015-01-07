@@ -63,11 +63,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
             print line
             metodo = line.split(" ")[0]  # Metodo introducido.
 
-            if metodo != "REGISTER" and metodo != "INVITE" and \
-                    metodo != "BYE" and metodo:  # Comprobamos primero el metodo.
-                self.wfile.write("SIP/2.0 405 Method Not Allowed\r\n")
-
-            elif metodo == "INVITE":  # El Registrer lo consideraremos en el proxy
+            if metodo == "INVITE":  # El Registrer lo consideraremos en el proxy
                 Log1 = etiquetas[4]
                 Log1 = Log1["path"]
                 Log1 = open(Log1, "a")  # Abrimos el log con el nombre del xml.
@@ -146,7 +142,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
 
                     Log1.write(" SIP/2.0 100 Trying")
                                # La misma info en el log.
-                    Log1.write(" SIP/2.0 180 Ring")
+                    Log1.write(" SIP/2.0 180 Ringing")
                     Log1.write(" SIP/2.0 200 OK")
                     Log1.write(" Content-Type: application/sdp")
                     Log1.write(" v=0")
@@ -280,6 +276,10 @@ class EchoHandler(SocketServer.DatagramRequestHandler):  # Igual a la P6
                 Log1.write(Tiempo_log[16:18])
                 Log1.write(Tiempo_log[19:21])
                 Log1.write(" Finishing.")
+            elif metodo != "REGISTER" and metodo != "INVITE" and \
+                    metodo != "BYE" and metodo:  # Comprobamos el metodo.
+                self.wfile.write("SIP/2.0 405 Method Not Allowed\r\n")
+
             if not line:
                 break
 
