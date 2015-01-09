@@ -41,6 +41,7 @@ CONFIG = readficheroconfig(FICHEROCONFIG)
 PORT = int(CONFIG["server_puerto"])
 NAME = CONFIG["server_name"]
 FICHEROLOG = CONFIG["log_path"]
+FICHERODATABASE = CONFIG["database_path"]
 PUERTO_CLIENT = {}
 
 METODOS_PERMITIDOS =  ["REGISTER","INVITE", "BYE"]
@@ -49,9 +50,19 @@ REGISTRO = {}
 
 tolog(FICHEROLOG, "interna","Starting...","")
 
+def restablecer_usuarios(fichero, REGISTRO):
+    ficheroregistro = open(fichero, "r")
+    for frase in ficheroregistro: 
+        frase = frase.split()
+        username = frase[0]
+        if username != "User":
+            REGISTRO[username] = [frase[1], frase[2], frase[4], frase[3]]
+    print REGISTRO
+    ficheroregistro.close()
 
 
 class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
+ 
     def borrar_caducados(self, registro):
         """
         Borra los usuarios presentes en el registro cuyo fecha
@@ -225,15 +236,9 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
                 break
 
 if __name__ == "__main__":
-    ficheroregistro = open("registered.txt", "r")
-    for frase in ficheroregistro: 
-        frase = frase.split()
-        username = frase[0]
-        if username != "User":
-            REGISTRO[username] = [frase[1], frase[2], frase[4], frase[3]]
-    print REGISTRO
-
-    ficheroregistro.close()
+    
+    restablecer_usuarios(FICHERODATABASE,REGISTRO)
+    
     # Creamos servidor de eco y escuchamos
     serv = SocketServer.UDPServer(("", PORT), SIPRegisterHandler)
     print "Server " + NAME + " listening at port " +  str(PORT) + "..."
