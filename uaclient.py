@@ -107,7 +107,7 @@ if (data[0] == "SIP/2.0 100 Trying"):
                 os.system(COMANDO)
                 uaserver.tolog(FICHEROLOG, "envio", "RTP",
                     [IP_RTP, str(PORT_RTP)])
-                print "Finalizada transmisión de RTP"
+                print "Finalizada transmisión de RTP "
 
 print "Terminando socket..."
 uaserver.tolog(FICHEROLOG, "interna", "Finishing...", "")
