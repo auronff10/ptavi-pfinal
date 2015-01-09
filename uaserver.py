@@ -152,5 +152,5 @@ if __name__ == "__main__":
         try:
             serv.serve_forever()
         except KeyboardInterrupt:
-            print "Programa Abortado"
+            print "Programa Abortado."
             tolog(FICHEROLOG, "interna", "Finishing...", "")
