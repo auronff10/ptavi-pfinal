@@ -110,6 +110,11 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
         Introduce en el registro aquellos usuarios cuya petición sea valida y
         borra aquellos que manden una petición con el campo Expires = 0.
         """
+
+        self.borrar_caducados(REGISTRO)
+        self.register2file(REGISTRO)
+
+
         print "Petición recibida del Cliente: ",
         print "IP:" + str(self.client_address[0]),
         print " Puerto: " + str(self.client_address[1])
