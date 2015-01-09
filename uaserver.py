@@ -12,12 +12,13 @@ import time
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 
+
 class ParserDTD(ContentHandler):
 
     def __init__(self):
-        #self.elementos = []
         self.diccionario = {}
-        self.tags = ['account', 'uaserver', 'rtpaudio', 'regproxy', 'log', 'audio', 'server','database']
+        self.tags = ['account', 'uaserver', 'rtpaudio',\
+            'regproxy', 'log', 'audio', 'server', 'database']
         self.atributos = {
             'account': ['username', 'passwd'],
             'uaserver': ['ip', 'puerto'],
@@ -32,36 +33,30 @@ class ParserDTD(ContentHandler):
     def startElement(self, name, attrs):
         datos = []
         if name in self.tags:
-            #diccionario['etiqueta'] = name
             for atributo in self.atributos[name]:
-                #diccionario[atributo] = attrs.get(atributo, "")
-                #datos.append(attrs.get(atributo, ""))
-                self.diccionario[name+"_"+ atributo] = attrs.get(atributo, "")
-            #self.elementos.append(diccionario)
+                self.diccionario[name + "_" + atributo] = attrs.get(atributo, "")
 
     def get_tags(self):
         return self.diccionario
 
 
-def tolog(fichero,type,traza,direccion):
+def tolog(fichero, type, traza, direccion):
     ficherolog = open(fichero, "a")
-    fecha = time.strftime('%Y%m%d%H%M%S',time.gmtime(time.time()))
+    fecha = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
     traza = traza.replace("\r\n", " ")
     if type == "interna":
-        trazatolog = fecha + " " + traza +"\r\n"
+        trazatolog = fecha + " " + traza + "\r\n"
         ficherolog.write(trazatolog)
     elif type == "envio":
-        trazatolog = fecha + " Sent to " + direccion[0] + ":" + str(direccion[1]) + " " + traza + "\r\n"
+        trazatolog = fecha + " Sent to " + direccion[0]
+        trazatolog += ":" + str(direccion[1]) + " " + traza + "\r\n"
         ficherolog.write(trazatolog)
     elif type == "recivo":
-        trazatolog = fecha + " Received from " + direccion[0] + ":" + str(direccion[1]) + " " + traza + "\r\n"
+        trazatolog = fecha + " Received from " + direccion[0]
+        trazatolog += ":" + str(direccion[1]) + " " + traza + "\r\n"
         ficherolog.write(trazatolog)
 
-
-
-
 if __name__ == "__main__":
-
     FICHEROCONFIG = sys.argv[1]
 
     def readficheroconfig(fichero):
@@ -89,17 +84,9 @@ if __name__ == "__main__":
     USER = CONFIG["account_username"]
     AUDIO = CONFIG["audio_path"]
     INFO_USER = {}
-
-
-    #INFORMACIÓN QUE EXTRAEREMOS DEL SDP DEL CLIENTE
-    SERVER_RTP = "127.0.0.1"
-    #INFORMACIÓN QUE EXTRAEREMOS DEL SDP DEL CLIENTE
-
     FICHEROLOG = CONFIG["log_path"]
-
     SDP = "v=0\r\n" + "o=" + USER + "\r\n" + "s=misesion\r\n" + "m=audio " + str(PORT_RTP) + " RTP"
     CVLC = "cvlc rtp://@" + SERVER + ":" + str(PORT_RTP) + "&"
-
 
     class SIPHandler(SocketServer.DatagramRequestHandler):
         """
@@ -110,41 +97,36 @@ if __name__ == "__main__":
             # Escribe dirección y puerto del cliente (de tupla client_address)
             while 1:
                 # Leyendo línea a línea lo que nos envía el cliente
-                mensaje =""
+                mensaje = ""
                 line = self.rfile.read()
                 if line != "":
                     if "\r\n\r\n" in line:
-                        print "El cliente nos manda " + line 
+                        print "El cliente nos manda " + line
                         cabeceras = line.split("\r\n\r\n")[0]
                         sdp = line.split("\r\n\r\n")[1]
                         cabeceras = cabeceras.split()
-                        sdp = sdp.split() 
-                        #line = line.split()
-                        '''
-                        if ('sip:' in line[1][:4]) and (line[2] == "SIP/2.0") \
-                            and ('@' in line[1]):
-                        '''
+                        sdp = sdp.split()
                         if ('sip:' in cabeceras[1][:4]) and (cabeceras[2] == "SIP/2.0") \
                             and ('@' in cabeceras[1]):
-                            tolog(FICHEROLOG, "recivo",( cabeceras[0]+ " " + cabeceras[1]), self.client_address)
+                            tolog(FICHEROLOG, "recivo", (cabeceras[0] + " " + cabeceras[1]), self.client_address)
                             if cabeceras[0] == "INVITE":
                                 USERNAME_CLIENT = sdp[1].split("=")[1]
                                 INFO_USER["user_name"] = USERNAME_CLIENT
                                 INFO_USER["port"] = [sdp[5]]
-                                SDP = "v=0\r\n" + "o=" + USERNAME_CLIENT + "\r\n" + "s=misesion\r\n" + "m=audio " + str(PORT_RTP) + " RTP"
+                                SDP = "v=0\r\n" + "o=" + USERNAME_CLIENT + " " + SERVER + "\r\n" + "s=misesion\r\n" + "m=audio " + str(PORT_RTP) + " RTP"
                                 mensaje = "SIP/2.0 100 Trying\r\n\r\nSIP/2.0 180 Ringing\r\n\r\n"
                                 mensaje += "SIP/2.0 200 OK\r\nContent-Type: application/sdp\r\n\r\n"
                                 mensaje += SDP
                                 mensaje += "\r\n"
                             elif cabeceras[0] == "ACK":
                                 USERNAME_CLIENT = cabeceras[1].split(":")[1]
+                                SERVER_RTP = USERNAME_CLIENT.split("@")[1]
                                 CLIENT_PORT_RTP = INFO_USER["port"][0]
                                 COMANDO = './mp32rtp -i ' + SERVER_RTP + ' -p ' + str(CLIENT_PORT_RTP) + ' < ' + AUDIO
                                 print "Comienza el RTP " + COMANDO
                                 os.system(CVLC)
                                 os.system(COMANDO)
-                                tolog(FICHEROLOG, "envio", "Comienza el envio de RTP", [SERVER_RTP,str(CLIENT_PORT_RTP)])
-                                print str(CLIENT_PORT_RTP)
+                                tolog(FICHEROLOG, "envio", "Comienza el envio de RTP", [SERVER_RTP, str(CLIENT_PORT_RTP)])
                                 print "La canción ha terminado"
                             elif cabeceras[0] == "BYE":
                                 mensaje = "SIP/2.0 200 OK\r\n\r\n"
@@ -156,19 +138,19 @@ if __name__ == "__main__":
                         mensaje = "SIP/2.0 400 Bad Request\r\n\r\n"
                     if mensaje != "":
                         self.wfile.write(mensaje)
-                        tolog(FICHEROLOG, "envio", mensaje, self.client_address)      
+                        tolog(FICHEROLOG, "envio", mensaje, self.client_address)
                 # Si no hay más líneas salimos del bucle infinito
                 if not line:
                     break
 
     if __name__ == "__main__":
-        tolog(FICHEROLOG, "interna","Starting...","")
+        tolog(FICHEROLOG, "interna", "Starting...", "")
         # Creamos servidor y escuchamos
         serv = SocketServer.UDPServer(("", PORT_SIP), SIPHandler)
         print "Listening..."
-        tolog(FICHEROLOG, "interna","Listening...","")
+        tolog(FICHEROLOG, "interna", "Listening...", "")
         try:
             serv.serve_forever()
         except KeyboardInterrupt:
             print "Programa Abortado"
-            tolog(FICHEROLOG, "interna","Finishing...","")
+            tolog(FICHEROLOG, "interna", "Finishing...", "")
