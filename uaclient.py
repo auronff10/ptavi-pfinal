@@ -16,14 +16,11 @@ if len(sys.argv) != 4:
     print "Usage: python server.py config metodo opcion"
     sys.exit()
 
-
-
-
 #Parametros para la conexión.
-    
 FICHEROCONFIG = sys.argv[1]
 METODO = sys.argv[2]
 OPCION = sys.argv[3]
+
 
 def readficheroconfig():
     parser = make_parser()
@@ -33,7 +30,7 @@ def readficheroconfig():
     TAGS = ParserDTD.get_tags()
     return TAGS
 
-CONFIG ={}
+CONFIG = {}
 CONFIG = readficheroconfig()
 
 # Dirección IP del servidor.
@@ -47,26 +44,27 @@ PORT_UASERVER = int(CONFIG["uaserver_puerto"])
 AUDIO = CONFIG["audio_path"]
 FICHEROLOG = CONFIG["log_path"]
 
-SDP = "v=0\r\n" + "o=" + USER + '@' + SERVER + " " + SERVER + "\r\n" + "s=misesion\r\n" + "m=audio " + str(PORT_RTP) + " RTP"
+SDP = "v=0\r\n" + "o=" + USER + '@' + SERVER + " " + SERVER + "\r\n"
+SDP += "s=misesion\r\n" + "m=audio " + str(PORT_RTP) + " RTP"
 ACK = "ACK" + ' sip:' + OPCION + " SIP/2.0\r\n"
 CVLC = "cvlc rtp://@" + SERVER + ":" + str(PORT_RTP) + "&"
 
-
-
-uaserver.tolog(FICHEROLOG, "interna","Starting...","")
+uaserver.tolog(FICHEROLOG, "interna", "Starting...", "")
 
 # Contenido que vamos a enviar
 if METODO == "INVITE":
-    LINE = "INVITE" + ' sip:' + OPCION  + " SIP/2.0\r\n" 
+    LINE = "INVITE" + ' sip:' + OPCION + " SIP/2.0\r\n"
     LINE += "Content-Type: application/sdp\r\n\r\n"
     LINE += SDP
 elif METODO == "REGISTER":
-    LINE = "REGISTER" + " sip:" + USER + "@" + SERVER +":" + str(PORT_UASERVER) + " SIP/2.0\r\n"
-    LINE += "Expires: " + str(OPCION)+ "\r\n\r\n"
+    LINE = "REGISTER" + " sip:" + USER + "@" + SERVER
+    LINE += ":" + str(PORT_UASERVER) + " SIP/2.0\r\n"
+    LINE += "Expires: " + str(OPCION) + "\r\n\r\n"
 elif METODO == "BYE":
-    LINE = "BYE" + ' sip:' + OPCION  + " SIP/2.0\r\n\r\n" 
+    LINE = "BYE" + ' sip:' + OPCION + " SIP/2.0\r\n\r\n"
 else:
-    LINE = METODO + " sip:" + USER + "@" + SERVER +":" + str(PORT_UASERVER) + " SIP/2.0\r\n\r\n"
+    LINE = METODO + " sip:" + USER + "@" + SERVER
+    LINE += ":" + str(PORT_UASERVER) + " SIP/2.0\r\n\r\n"
 
 # Creamos el socket, lo configuramos y lo atamos a un servidor/puerto
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -75,38 +73,44 @@ my_socket.connect((IP_PROXY, PORT_PROXY))
 
 print "Enviando: " + LINE
 my_socket.send(LINE)
-uaserver.tolog(FICHEROLOG, "envio", LINE, [SERVER,str(PORT_PROXY)])
+uaserver.tolog(FICHEROLOG, "envio", LINE, [SERVER, str(PORT_PROXY)])
 try:
     data = my_socket.recv(1024)
-    uaserver.tolog(FICHEROLOG, "recivo", data, [SERVER,str(PORT_PROXY)])
+    uaserver.tolog(FICHEROLOG, "recivo", data, [SERVER, str(PORT_PROXY)])
     print 'Recibido -- ', data
 except socket.error:
-    fecha = time.strftime('%Y%m%d%H%M%S',time.gmtime(time.time()))
-    error = " Error: No server listening at " + SERVER + " port " + str(PORT_PROXY)
+    fecha = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
+    error = " Error: No server listening at "
+    error += SERVER + " port " + str(PORT_PROXY)
     print fecha + error
     uaserver.tolog(FICHEROLOG, "interna", error, "")
     sys.exit()
 
 data = data.split('\r\n\r\n')
-
+#Compruebo que el mensaje de respuesta es el correcto
 if (data[0] == "SIP/2.0 100 Trying"):
         if (data[1] == "SIP/2.0 180 Ringing"):
             if (data[2] == "SIP/2.0 200 OK\r\nContent-Type: application/sdp"):
+                '''
+                Extraigo la información necesaria 
+                y comienzo la transmision de RTP
+                '''
                 data[3] = data[3].split()
-                PORT_RTP = data[3][4]
+                PORT_RTP = data[3][5]
                 print "Enviando: " + ACK
                 my_socket.send(ACK + '\r\n')
-                IP_RTP = OPCION.split("@")[1]
+                IP_RTP = data[3][2]
                 os.system(CVLC)
-                COMANDO = './mp32rtp -i ' + IP_RTP + ' -p ' + str(PORT_RTP) + ' < ' + AUDIO
+                COMANDO = './mp32rtp -i ' + IP_RTP
+                COMANDO += ' -p ' + str(PORT_RTP) + ' < ' + AUDIO
                 print "COMIENZA EL RTP " + COMANDO
                 os.system(COMANDO)
-                uaserver.tolog(FICHEROLOG, "envio", "Comienza el envio de RTP", [IP_RTP,str(PORT_RTP)])
-                print "RTP FINALIZADO"
+                uaserver.tolog(FICHEROLOG, "envio", "RTP",
+                    [IP_RTP, str(PORT_RTP)])
+                print "Finalizada transmisión de RTP"
 
 print "Terminando socket..."
-uaserver.tolog(FICHEROLOG, "interna","Finishing...","")
-
+uaserver.tolog(FICHEROLOG, "interna", "Finishing...", "")
 
 # Cerramos todo.
 my_socket.close()
