@@ -86,7 +86,6 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
         """
         Recive y procesa todos los mensajes recividos por el servidor del tipo
         REGISTER.
-
         Introduce en el registro aquellos usuarios cuya petición sea valida y
         borra aquellos que manden una petición con el campo Expires = 0.
         """
