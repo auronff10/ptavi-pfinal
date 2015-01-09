@@ -92,7 +92,7 @@ if (data[0] == "SIP/2.0 100 Trying"):
         if (data[1] == "SIP/2.0 180 Ringing"):
             if (data[2] == "SIP/2.0 200 OK\r\nContent-Type: application/sdp"):
                 '''
-                Extraigo la información necesaria 
+                Extraigo la información necesaria
                 y comienzo la transmision de RTP
                 '''
                 data[3] = data[3].split()
