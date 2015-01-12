@@ -75,14 +75,13 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
         fichero = open("registered.txt", "w")
         fichero.write("User \t IP \t Puerto \t Fecha \t Expires \n")
         for key in registro:
-            fichero.write(key + " " + registro[key][0] \
-                + " " + registro[key][1] + " ")
+            fichero.write(key + " " + registro[key][0]
+                          + " " + registro[key][1] + " ")
             expires = registro[key][2]
             fecha = registro[key][3]
             fichero.write(str(fecha) + " " + str(expires) + "\n")
 
     def handle(self):
-
         """
         Recive y procesa todos los mensajes recividos por el servidor del tipo
         REGISTER.
@@ -104,85 +103,120 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
                     mensaje_reenviar = line
                     line = line.split()
                     if ('sip:' in line[1][:4]) and (line[2] == "SIP/2.0") \
-                        and ('@' in line[1]):
-                        tolog(FICHEROLOG, "recivo", mensaje_reenviar,\
-                            self.client_address)
+                            and ('@' in line[1]):
+                        tolog(FICHEROLOG, "recivo", mensaje_reenviar,
+                              self.client_address)
                         if line[0] == "INVITE":
                             line[1] = line[1].split(":")
-                            #Compruebo que ambos clientes esten registrados
+                            # Compruebo que ambos clientes esten registrados
                             if str(line[1][1]) in REGISTRO:
                                 IP_CLIENT = self.client_address[0]
-                                PUERTO_CLIENT["client"] = self.client_address[1]
+                                PUERTO_CLIENT[
+                                    "client"] = self.client_address[1]
                                 USERNAME_CLIENT = line[6].split("=")[1]
                                 if USERNAME_CLIENT in REGISTRO:
-                                    #Realizo el reenvion hacia el servidor que corresponda
-                                    PORT_REENVIO = int(REGISTRO[str(line[1][1])][1])
+                                    # Realizo el reenvion hacia el servidor que
+                                    # corresponda
+                                    PORT_REENVIO = int(
+                                        REGISTRO[str(line[1][1])][1])
                                     IP_REENVIO = REGISTRO[str(line[1][1])][0]
-                                    my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                                    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                                    my_socket.connect((IP_REENVIO, PORT_REENVIO))
+                                    my_socket = socket.socket(
+                                        socket.AF_INET, socket.SOCK_DGRAM)
+                                    my_socket.setsockopt(
+                                        socket.SOL_SOCKET, socket.SO_REUSEADDR,
+                                        1)
+                                    my_socket.connect(
+                                        (IP_REENVIO, PORT_REENVIO))
                                     my_socket.send(mensaje_reenviar)
-                                    tolog(FICHEROLOG, "envio", mensaje_reenviar, [IP_REENVIO, PORT_REENVIO])
-                                    PUERTO_CLIENT["client"] = self.client_address[1]
-                                    #Espero respuesta del servidor
+                                    tolog(
+                                        FICHEROLOG, "envio", mensaje_reenviar,
+                                        [IP_REENVIO, PORT_REENVIO])
+                                    PUERTO_CLIENT[
+                                        "client"] = self.client_address[1]
+                                    # Espero respuesta del servidor
                                     try:
                                         respuesta = my_socket.recv(1024)
-                                        print "Respuesta del servidor:", respuesta
+                                        print "Respuesta del servidor:", \
+                                            respuesta
                                     except socket.error:
-                                        fecha = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
-                                        error = " Error: No server listening at " + IP_REENVIO + " port " + str(PORT_REENVIO)
+                                        fecha = time.strftime(
+                                            '%Y%m%d%H%M%S',
+                                            time.gmtime(time.time()))
+                                        error = " Error: No server \
+                                                listening at " + \
+                                                IP_REENVIO + " port " + \
+                                                str(PORT_REENVIO)
                                         print fecha + error
                                         tolog(FICHEROLOG, "interna", error, "")
-                                        respuesta = "SIP/2.0 404 User Not Found"
+                                        respuesta = "SIP/2.0 404 \
+                                                    User Not Found"
 
                                     print "Reenvio al cliente."
                                     self.wfile.write(respuesta)
                                 else:
-                                    #Respuesta correspondiente a la petición de/hacia un usuario no registrado
+                                    # Respuesta correspondiente a la petición
+                                    # de/hacia un usuario no registrado
                                     mensaje = "SIP/2.0 404 User Not Found"
                             else:
                                 mensaje = "SIP/2.0 404 User Not Found"
                         elif line[0] == "REGISTER":
-                            #Procedo al intrudir al cliente que nos envia el REGISTER en el registro de usuarios.
+                            # Procedo al intrudir al cliente que nos envia el
+                            # REGISTER en el registro de usuarios.
                             line[1] = line[1].split(":")
                             self.wfile.write(line[2] + " 200 OK\r\n\r\n")
                             if line[4] != "0":
                                 fecharegistro = time.time()
-                                REGISTRO[line[1][1]] = [str(self.client_address[0]), line[1][2], line[4], fecharegistro]
+                                REGISTRO[line[1][1]] = [
+                                    str(self.client_address[0]), line[1][2],
+                                    line[4], fecharegistro]
                             else:
-                                #Si el valor del Expires del REGISTER es igual a 0, da de baja a ese usuario
+                                # Si el valor del Expires del REGISTER es igual
+                                # a 0, da de baja a ese usuario
                                 if line[1][1] in REGISTRO:
                                     del REGISTRO[line[1][1]]
                         elif line[0] == "ACK":
                             line[1] = line[1].split(":")
                             PORT_REENVIO = int(REGISTRO[str(line[1][1])][1])
                             IP_REENVIO = REGISTRO[str(line[1][1])][0]
-                            #Reenvio del ACK
-                            my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                            my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                            # Reenvio del ACK
+                            my_socket = socket.socket(
+                                socket.AF_INET, socket.SOCK_DGRAM)
+                            my_socket.setsockopt(
+                                socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                             my_socket.connect((IP_REENVIO, PORT_REENVIO))
                             my_socket.send(mensaje_reenviar)
-                            tolog(FICHEROLOG, "envio", mensaje_reenviar, [IP_REENVIO, PORT_REENVIO])
+                            tolog(FICHEROLOG, "envio", mensaje_reenviar, [
+                                  IP_REENVIO, PORT_REENVIO])
                         elif line[0] == "BYE":
                             user = str(line[1])
                             user = user.split(":")
                             if user[1] in REGISTRO:
                                 line[1] = line[1].split(":")
-                                PORT_REENVIO = int(REGISTRO[str(line[1][1])][1])
+                                PORT_REENVIO = int(
+                                    REGISTRO[str(line[1][1])][1])
                                 IP_REENVIO = REGISTRO[str(line[1][1])][0]
-                                #Reenvio del BYE
-                                my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                                my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                                # Reenvio del BYE
+                                my_socket = socket.socket(
+                                    socket.AF_INET, socket.SOCK_DGRAM)
+                                my_socket.setsockopt(
+                                    socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                                 my_socket.connect((IP_REENVIO, PORT_REENVIO))
                                 my_socket.send(mensaje_reenviar)
-                                tolog(FICHEROLOG, "envio", mensaje_reenviar, [IP_REENVIO, PORT_REENVIO])
+                                tolog(
+                                    FICHEROLOG, "envio", mensaje_reenviar,
+                                    [IP_REENVIO, PORT_REENVIO])
                                 try:
-                                    #Espero la respuesta del servidor
+                                    # Espero la respuesta del servidor
                                     respuesta = my_socket.recv(1024)
                                     print "Respuesta del servidor:", respuesta
                                 except socket.error:
-                                    fecha = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
-                                    error = " Error: No server listening at " + IP_REENVIO + " port " + str(PORT_REENVIO)
+                                    fecha = time.strftime(
+                                        '%Y%m%d%H%M%S',
+                                        time.gmtime(time.time()))
+                                    error = " Error: No server \
+                                            listening at " + \
+                                            IP_REENVIO + " port " + \
+                                            str(PORT_REENVIO)
                                     print fecha + error
                                     tolog(FICHEROLOG, "interna", error, "")
                                     respuesta = "SIP/2.0 404 User Not Found"
@@ -193,14 +227,15 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
                                 self.wfile.write(respuesta)
 
                         elif line[0] not in METODOS_PERMITIDOS:
-                            #Mensaje de respuesta correspondiente al recibir un mensaje con un método no permitido
+                            # Mensaje de respuesta correspondiente al recibir
+                            # un mensaje con un método no permitido
                             mensaje = "SIP/2.0 405 Method Not Allowed\r\n\r\n"
                 else:
                     mensaje = "SIP/2.0 400 Bad Request\r\n\r\n"
                 self.borrar_caducados(REGISTRO)
                 self.register2file(REGISTRO)
                 if mensaje != "":
-                    #Envio del mensaje correspondiente cuando sea necesario
+                    # Envio del mensaje correspondiente cuando sea necesario
                     self.wfile.write(mensaje)
                     tolog(FICHEROLOG, "envio", mensaje, self.client_address)
             # Si no hay más líneas salimos del bucle infinito
@@ -208,7 +243,7 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
                 break
 
 if __name__ == "__main__":
-    #Restablecimiento de usuarios conectados presentes en el fichero.
+    # Restablecimiento de usuarios conectados presentes en el fichero.
     restablecer_usuarios(FICHERODATABASE, REGISTRO)
     # Creamos servidor y escuchamos
     serv = SocketServer.UDPServer(("", PORT), SIPRegisterHandler)
